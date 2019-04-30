@@ -11,7 +11,7 @@ A filter to generate images with all 8-bit RGB colors. Here are some examples:
 
 - Python 3.4 or higher
 - `Numpy` and `Pillow`
-- around 24 GBs of free RAM (*I know, I must optimize the tree structure.* Also this should be runnable on a 16GB RAM machine if it has enough `swap`)
+- around 24 GBs of free RAM (*I know, I need to optimize the tree structure.* Also this should be runnable on a 16GB RAM machine if it has enough `swap`)
 - around 2 GBs of free disk spaces (for cache files).
 
 
