@@ -1,12 +1,14 @@
-from allrgb.kdtree import RGBKdTree
-from allrgb.cache import CacheStorage, CacheLoadError
-from PIL import Image, ImageCms
-import numpy as np
-import os
 import glob
-import random
+import os
 import pickle
+import random
 
+import numpy as np
+from PIL import Image, ImageCms
+
+from .cache import CacheStorage, CacheLoadError
+from .kdtree import RGBKdTree
+from .log import auto_log
 
 _cache_storage = CacheStorage('filter')
 
@@ -22,15 +24,8 @@ def _sanitize(img):
 
     If the input file is in *Lab* color space, it is converted to *sRGB*.
 
-    **Parameters**
-
-        img: :class:`PIL.Image`
-            Input image.
-
-    **Returns**
-
-        img: :class:`PIL.Image`
-            sanitized image.
+    :param img: Input image as PIL.Image object.
+    :return: sanitized image as PIL.Image object.
     """
 
     if img.mode in ['RGB']:
@@ -38,14 +33,14 @@ def _sanitize(img):
     elif img.mode == 'LAB':
         # PIL cannot convert Lab to RGB automatically.
         # Codes from https://stackoverflow.com/questions/52767317/
-        srgb_p = ImageCms.createProfile('sRGB')
-        lab_p  = ImageCms.createProfile('LAB')
-        lab2rgb = ImageCms.buildTransformFromOpenProfiles(lab_p, srgb_p, 'LAB', 'RGB')
+        rgb_p = ImageCms.createProfile('sRGB')
+        lab_p = ImageCms.createProfile('LAB')
+        lab2rgb = ImageCms.buildTransformFromOpenProfiles(lab_p, rgb_p, 'LAB', 'RGB')
         img2 = ImageCms.applyTransform(img, lab2rgb)
     else:
         img2 = img.convert('RGB')
 
-    print('[_sanitize] %s(%s) --> %s.' % (img.format, img.mode, img2.mode))
+    auto_log('%s(%s) --> %s.' % (img.format, img.mode, img2.mode))
 
     return img2
 
@@ -54,17 +49,8 @@ def _calc_avg_luminance(sanitized_img):
     """
     Calculate average luminance of a given sanitized image object
 
-
-    **Parameters**
-
-        sanitized_img: :class:`PIL.Image`
-            Input image (8-bit file, color mode must be *RGB*, *RGBA*, *L* or *LA*).
-
-    **Returns**
-
-        luminance: *float*
-            average luminance.
-
+    :param sanitized_img: Input image (8-bit file, color mode must be *RGB*).
+    :return: average luminance of given image as a float number between 0 and 1.
     """
 
     from colorsys import rgb_to_hsv
@@ -100,34 +86,21 @@ def set_luminance(sanitized_img, target_luminance, mixing_coeff=1.0):
     *L' = a \* (L \* scale) + b \* (L + shift)*, where *a* and *b* are weights controlled by
     *mixing_coeff* and *a* + *b* is always 1.
 
-    **Parameters**
+    Note that the average luminance of output image may differ from *target_luminance*.
+    When this happens it means there are pixels in the output image that already hit
+    pure black or white, so that the luminance adjustment is limited because those pixels
+    can not be darker or brighter.
 
-        sanitized_img: :class:`PIL.Image`
-            Input image (8-bit file, color mode must be *RGB*, *RGBA*, *L* or *LA*).
-
-        target_luminance: *float*
-            target luminance, on scale from 0.0 to 1.0.
-
-        mixing_coeff: *float, optional*
-            control mixing of results of two methods, on scale from -3.0 to 3.0. Default is 1.0,
+    :param sanitized_img: Input image (8-bit file, color mode must be *RGB*).
+    :param target_luminance: target luminance, on scale from 0.0 to 1.0.
+    :param mixing_coeff: (optional) control mixing of results of two methods, on scale from -3.0 to 3.0. Default is 1.0,
             which is only use "fixed scaling" method. Value of 0.0 will use the average of
             two methods. Positive value increase weight of "fixed scaling" method, while
             negative value increase weight of "fixed shift" method. Value of 1 and -1 will
             effectively "turn off" the other method. And value beyond 1 or -1 will resulting
             in negative value of *b* or *a*, which usually leads to wired result but can be
             useful in some cases.
-
-    **Returns**
-
-        output_img: :class:`PIL.Image`
-            output image.
-
-        luminance: *float*
-            average luminance of output image. Note that this may differ from *target_luminance*.
-            When this happens it means there are pixels in the output image that already hit
-            pure black or white, so that the luminance adjustment is limited because those
-            pixels can not be darker or brighter.
-
+    :return: output image as PIL.Image object and the average luminance of output image.
     """
 
     from colorsys import rgb_to_hsv, hsv_to_rgb
@@ -142,16 +115,16 @@ def set_luminance(sanitized_img, target_luminance, mixing_coeff=1.0):
 
     # Calculate average luminance of input image, determine coefficients for luminance transform function.
     input_avg_luminance = _calc_avg_luminance(sanitized_img)
-    print('[set_luminance] input average luminance: %.4f' % input_avg_luminance)
-    print('[set_luminance] target average luminance: %.4f' % target_luminance)
+    auto_log('input average luminance: %.4f' % input_avg_luminance)
+    auto_log('target average luminance: %.4f' % target_luminance)
 
     # luminance transform function L' = f(L) = alpha * (L * scale)  +  beta * (L + shift)
     alpha, beta = (1 + mixing_coeff) / 2.0, (1 - mixing_coeff) / 2.0
     scale = target_luminance / input_avg_luminance
     shift = target_luminance - input_avg_luminance
     f = lambda L: alpha * (L * scale) + beta * (L + shift)
-    print("[set_luminance] mixing_coeff = %.2f, L' = f(L) = %.2f * (L * %.4f) + %.2f * (L + %.4f)" %
-          (mixing_coeff, alpha, scale, beta, shift))
+    auto_log("mixing_coeff = %.2f, L' = f(L) = %.2f * (L * %.4f) + %.2f * (L + %.4f)" %
+             (mixing_coeff, alpha, scale, beta, shift))
 
     # Function for calculating result data of one pixel
     # Because sanitized_img is always an 8-bit image, we can hard code 255 as limit.
@@ -167,25 +140,35 @@ def set_luminance(sanitized_img, target_luminance, mixing_coeff=1.0):
     modified_img.putdata(modified_data)
 
     output_avg_luminance = _calc_avg_luminance(modified_img)
-    print('[set_luminance] output average luminance: %.4f' % output_avg_luminance)
+    auto_log('output average luminance: %.4f' % output_avg_luminance)
     if abs(target_luminance - output_avg_luminance) > 0.01:
-        print('[set_luminance] WARNING: luminance adjustment is limited by highlight and/or shadow clipping.')
+        auto_log('luminance adjustment is limited by highlight and/or shadow clipping.', level='warning')
 
     return modified_img, output_avg_luminance
 
 
 class AllRGBFilter:
+    """ A filter which can convert any image to all-RGB image. """
+
     def __init__(self, bits=8, load_patterns=True, noise_pattern=_default_noise_pattern,
                  index_pattern=_default_index_pattern):
+        """
+        Create a new AllRGBFilter() instance.
 
-        assert bits in [4, 6, 8]
+        :param bits: bit depth of RGB color. Currently the only allowed value is 8.
+        :param load_patterns: Whether auto load pattern images or not.
+        :param noise_pattern: Define which pattern is used for color noises. This must be a RGB pattern.
+        :param index_pattern: Define which pattern is used for index generations. This must be a Mono-channel pattern.
+        """
+
+        assert bits in [8]
         self.bits = bits
         self.size = int(((2 ** bits) ** 3) ** 0.5)
         self._indexes = None
         self._noise_arr_float = None
         self._kd_tree_pickled = None
 
-        print('[AllRGBFilter] __init__:', self.bits, self.size)
+        auto_log('AllRGBFilter Init: bits = %d, size = %d' % (self.bits, self.size))
 
         all_patterns = glob.glob(os.path.join(_pattern_dir, 'mat_*.png'))
         self.available_patterns = {os.path.basename(s)[4:-4]: s for s in all_patterns}
@@ -198,12 +181,20 @@ class AllRGBFilter:
 
     @staticmethod
     def _get_pattern_info(pattern_name):
+        """ extract metadata from pattern name """
+
         info = pattern_name.split('_')
         dim, std_int = int(info[0]), int(info[1][3:])
         return dim, std_int
 
     def load_index_pattern(self, index_pattern):
-        print('[AllRGBFilter] load_index_pattern:', index_pattern)
+        """
+        Load a pattern image and use it to generations random indexes.
+
+        :param index_pattern: name of the pattern.
+        :return: None
+        """
+        auto_log('load ' + index_pattern)
 
         assert index_pattern.endswith('_mono')
         assert index_pattern in self.available_patterns
@@ -224,7 +215,14 @@ class AllRGBFilter:
             del indexes, idx_img, idx_arr
 
     def load_noise_pattern(self, noise_pattern):
-        print('[AllRGBFilter] load_noise_pattern:', noise_pattern)
+        """
+        Load a pattern image and use it to generate color noise layer.
+
+        :param noise_pattern: name of the pattern.
+        :return: None
+        """
+
+        auto_log('load ' + noise_pattern)
 
         assert not noise_pattern.endswith('_mono')
         assert noise_pattern in self.available_patterns
@@ -245,15 +243,28 @@ class AllRGBFilter:
             del noise_arr, noise_arr_tiled, noise_pat
 
     def _init_kd_tree(self):
-        print('[AllRGBFilter] _init_kd_tree')
+        """ Init. a k-D tree and cache it in memory. """
 
+        auto_log('Init. k-D tree...')
         kd_tree = RGBKdTree(bits=self.bits)
         self._kd_tree_pickled = pickle.dumps(kd_tree, protocol=4)
         del kd_tree
 
-    def filter_image(self, img_name, out_name, target_luminance=None, noise_blend_alpha=0.1, noise_overlay_alpha=0.5):
-        print('[AllRGBFilter] filter_image', img_name,
-              target_luminance, noise_blend_alpha, noise_overlay_alpha)
+    def filter_image(self, img_name, out_name, target_luminance=None, noise_blend_alpha=0.05, noise_overlay_alpha=0.3):
+        """
+        Convert a image to an all-RGB image.
+
+        :param img_name: path to input image.
+        :param out_name: path to output image.
+        :param target_luminance: If being set, will change the brightness of the input image before all-RGB processing,
+               this should be used when the input image is too dark to too bright.
+        :param noise_blend_alpha: alpha value of blending amount of the color noise layer.
+        :param noise_overlay_alpha:  alpha value of overlay blending amount og the color noise layer.
+        :return: None
+        """
+
+        auto_log('file: %s, target_luminance = %s, noise_blend_alpha = %s, noise_overlay_alpha = %s.' % (img_name,
+                 str(target_luminance), str(noise_blend_alpha), str(noise_overlay_alpha)))
 
         inp_img = Image.open(img_name)
         sanitized_img = _sanitize(inp_img)
@@ -288,7 +299,7 @@ class AllRGBFilter:
         for i, index in enumerate(self._indexes):
             if i % 1048576 == 0:
                 pct = 100.0 * i / (self.size * self.size)
-                print(('%.1f%% percent complete' % pct))
+                auto_log(('%s: %.1f%% percent complete' % (img_name, pct)))
             out_arr[index] = kd_tree.pop_nearest_neighbor(*ref_arr[index])
 
         out_img = Image.new('RGB', (self.size, self.size))

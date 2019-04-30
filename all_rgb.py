@@ -1,6 +1,6 @@
 from allrgb import AllRGBFilter
 
-BATCH_NAME = 'NrOv1050d76'
+BATCH_NAME = 'NrOv0530d94'
 
 rgb_filter = AllRGBFilter()
 

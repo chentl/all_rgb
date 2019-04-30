@@ -6,11 +6,11 @@ __pycache__/
 # PyCharm
 .idea/
 
-# cache
-cache/
+# cache files
+*.cache
 
-# images
-images/
+# PNG images
+*.png
 
 # logs
 *.log

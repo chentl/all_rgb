@@ -7,7 +7,7 @@ program to generate images with all 8-bit RGB colors.
 
 - Python 3.4 or higher
 - `Numpy` and `Pillow`
-- around 20 GBs of free RAM (may be runnable on 16GB `RAM` machine if have enough `swap`)
+- around 24 GBs of free RAM (may be runnable on a 16GB `RAM` machine if it has enough `swap`)
 
 
 ## Tested environment

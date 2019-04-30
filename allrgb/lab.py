@@ -2,6 +2,14 @@ import itertools
 
 
 def rgb2lab(r, g, b):
+    """
+    convert RGB to Lab color. Assuming sRGB color space and D65 white point.
+
+    :param r: R component of given color.
+    :param g: G component of given color.
+    :param b: B component of given color.
+    :return: Lab color in a tuple of float numbers.
+    """
     r, g, b = r / 255.0, g / 255.0, b / 255.0
 
     # http://www.brucelindbloom.com/index.html?Math.html
@@ -35,13 +43,29 @@ def rgb2lab(r, g, b):
 
 
 def delta_e_76(lab1, lab2):
+    """
+    Calculate the delta E of two Lab colors using CIE 76 standard.
+
+    :param lab1: color 1
+    :param lab2: color 2
+    :return: the square of DeltaE (dE^2)
+    """
+
     l1, a1, b1 = lab1
     l2, a2, b2 = lab2
     return (l1 - l2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2
 
 
 def delta_e_94(lab1, lab2):
-    # http://www.brucelindbloom.com/index.html?Eqn_DeltaE_CIE94.html
+    """
+    Calculate the delta E of two Lab colors using CIE 94 standard.
+
+    :param lab1: color 1
+    :param lab2: color 2
+    :return: the square of DeltaE (dE^2)
+    """
+
+    # Math from http://www.brucelindbloom.com/index.html?Eqn_DeltaE_CIE94.html
     l1, a1, b1 = lab1
     l2, a2, b2 = lab2
 
@@ -61,11 +85,29 @@ def delta_e_94(lab1, lab2):
 
 
 class Rgb2LabMap:
+    """ A lookup dictionary for RGB to Lab conversion. """
+
     def __init__(self, bits=8):
+        """
+        Create a new RGB to lookup dictionary map.
+
+        :param bits: bit depth of RGB colors
+        """
+
         self.map = {}
         self.bits = bits
         for r, g, b in itertools.product(range(2 ** bits), repeat=3):
             self.map[(r << 2 * bits) + (g << bits) + b] = rgb2lab(r << (8 - bits), g << (8 - bits), b << (8 - bits))
 
     def get(self, r, g, b):
+        """
+        Return the Lab equivalence of the given (r, g, b) color. This should give the same result as
+        the rgb2lab() function in this file. Just a lot faster.
+
+        :param r: R component of given color.
+        :param g: G component of given color.
+        :param b: B component of given color.
+        :return: Lab color in a tuple of float numbers.
+        """
+
         return self.map[(r << 2 * self.bits) + (g << self.bits) + b]
