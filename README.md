@@ -1,11 +1,13 @@
 # all_rgb
 
-program to generate images with all 8-bit RGB colors.
+A filter to generate images with all 8-bit RGB colors. Here is a example:
 
+
+(The picture above is a lossy compressed version. Here is the [uncompressed one](results/chris-holder_allrgb.png).)
 
 ## Requirements
 
-- Python 3.6 or higher
+- Python 3.4 or higher
 - `Numpy` and `Pillow`
 - around 24 GBs of free RAM (*I know, I must optimize the tree structure.* Also this should runnable on a 16GB RAM machine if it has enough `swap`)
 - around 2 GBs of free disk spaces (for cache files).
