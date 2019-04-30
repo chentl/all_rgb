@@ -17,6 +17,10 @@ _default_noise_pattern = '256_std20'
 _default_index_pattern = '512_std10_mono'
 
 
+class FilterError(Exception):
+    pass
+
+
 def _sanitize(img):
     """
     Convert image color mode to *RGB*. So it is easier for future
@@ -266,7 +270,19 @@ class AllRGBFilter:
         auto_log('file: %s, target_luminance = %s, noise_blend_alpha = %s, noise_overlay_alpha = %s.' % (img_name,
                  str(target_luminance), str(noise_blend_alpha), str(noise_overlay_alpha)))
 
-        inp_img = Image.open(img_name)
+        try:
+            inp_img = Image.open(img_name)
+        except IOError:
+            raise FilterError('The file cannot be found, or the image cannot be opened.')
+        if inp_img.size != (self.size, self.size):
+            raise FilterError('The input image size must be %dx%d' % (self.size, self.size))
+        if target_luminance and target_luminance >= 1 or target_luminance <= 0:
+            raise FilterError('The target_luminance must be in (0, 1)')
+        if noise_blend_alpha > 1 or noise_blend_alpha < 0:
+            raise FilterError('The noise_blend_alpha must be in [0, 1]')
+        if noise_overlay_alpha > 1 or noise_overlay_alpha < 0:
+            raise FilterError('The noise_overlay_alpha must be in [0, 1]')
+
         sanitized_img = _sanitize(inp_img)
 
         if target_luminance is not None:

@@ -1,21 +1,16 @@
-from allrgb import AllRGBFilter
+import glob
+import os
 
-BATCH_NAME = 'NrOv0530d94'
+from allrgb import AllRGBFilter, FilterError, auto_log
 
 rgb_filter = AllRGBFilter()
 
 
-def convert(img_name):
-    ref_img = 'images/%s.png' % img_name
-    out_img = 'images/%s_%s_allrgb.png' % (img_name, BATCH_NAME)
-
-    rgb_filter.filter_image(ref_img, out_img)
-
-
 if __name__ == '__main__':
 
-    images = ['carlos-quintero', 'chris-holder', 'courtney-hobbs', 'jackson-case',
-              'lily-banse', 'marcus-cramer', 'peter-lloyd', 'spencer-davis', 'yolanda-sun']
-
-    for img in images:
-        convert(img)
+    for ref_img in glob.glob(os.path.join('images', '*.jpg')):
+        out_img = ref_img[:-4] + '_allrgb.png'
+        try:
+            rgb_filter.filter_image(ref_img, out_img)
+        except FilterError as e:
+            auto_log('Error at %s file: %s' % e, level='error')
