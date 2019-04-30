@@ -1,6 +1,6 @@
 # all_rgb
 
-A filter to generate images with all 8-bit RGB colors. Here is a example:
+A filter to generate images with all 8-bit RGB colors. Here are some examples:
 
 | Photo by [Chris Holder](https://unsplash.com/photos/pyMNFCC1wqM) | Photo by [Lily Banse](https://unsplash.com/photos/dIRZxtl4mzo) |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
