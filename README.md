@@ -39,6 +39,7 @@ from allrgb import AllRGBFilter
 rgb_filter = AllRGBFilter()
 
 # Convert a existing image to an All-RGB image.
+# The input image must have size of 4096x4096.
 rgb_filter.filter_image('images/peter-lloyd.jpg', 'images/peter-lloyd_allrgb.png')
 ```
 
