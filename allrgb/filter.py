@@ -305,10 +305,10 @@ class AllRGBFilter:
 
         ref_arr = [tuple(p) for p in np.array(inp_arr_float, dtype=np.uint8)]
 
-        ref_name = out_name[:-4] + '_ref.png'
-        ref_img = Image.new('RGB', (self.size, self.size))
-        ref_img.putdata(ref_arr)
-        ref_img.save(ref_name)
+        # ref_name = out_name[:-4] + '_ref.png'
+        # ref_img = Image.new('RGB', (self.size, self.size))
+        # ref_img.putdata(ref_arr)
+        # ref_img.save(ref_name)
 
         kd_tree = pickle.loads(self._kd_tree_pickled)
         out_arr = [None] * (self.size * self.size)
