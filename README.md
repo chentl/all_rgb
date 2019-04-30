@@ -7,8 +7,8 @@ program to generate images with all 8-bit RGB colors.
 
 - Python 3.4 or higher
 - `Numpy` and `Pillow`
-- around 24 GBs of free RAM (may be runnable on a 16GB `RAM` machine if it has enough `swap`)
-- around 2 GBs of free disk spaces.
+- around 24 GBs of free RAM (*I know, I must optimize the tree structure.* Also this should runnable on a 16GB RAM machine if it has enough `swap`)
+- around 2 GBs of free disk spaces (for cache files).
 
 
 ## Tested environment
@@ -80,9 +80,4 @@ For `Step 3`, compare colors in `Lab` color space instead of `RGB` for a more na
 
 - At the first run, the program needs to initialize and cache the color noises array and the k-D tree. This may takes a few minutes. For all following runs, caches will be used and initialization will be a lot faster.
 - Using a single `AllRGBFilter()` instance for multiple images will be faster than initializing different `AllRGBFilter()` instances for each image.
-- After initialization, the filtering process (`filter_image()` method) will takes about 20 minutes for each image.
-
-
-## Cache files
-
-After first run, this program will generate some cache files 
+- After initialization, the filtering process (`filter_image()` method) will takes about 20 minutes for each image (When using a 4GHz CPU).
