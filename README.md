@@ -2,8 +2,9 @@
 
 A filter to generate images with all 8-bit RGB colors. Here is a example:
 
+![chris-holder_compressed](demo/chris-holder_allrgb_compressed.jpg)
 
-(The picture above is a lossy compressed version. Here is the [uncompressed one](results/chris-holder_allrgb.png).)
+(The picture above is a lossy compressed version. Here is the [uncompressed one](demo/chris-holder_allrgb.png).)
 
 ## Requirements
 
@@ -60,7 +61,7 @@ def convert(img):
 
 with Pool(3) as pool:
     pool.map(convert, img_list)
-``` 
+```
 
 
 ## Method
