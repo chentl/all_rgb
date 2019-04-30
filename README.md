@@ -53,7 +53,7 @@ from os import path
 from multiprocessing import Pool
 
 rgb_filter = AllRGBFilter()
-img_list = ['peter-lloyd.jpg', 'lily-banse.jpg', 'yolanda-sun.jpg']
+img_list = ['peter-lloyd.jpg', 'lily-banse.jpg', 'chris-holder.jpg']
 
 def convert(img):
     inp_name = path.join('images', img)
