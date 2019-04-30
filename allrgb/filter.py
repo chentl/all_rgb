@@ -276,8 +276,9 @@ class AllRGBFilter:
             raise FilterError('The file cannot be found, or the image cannot be opened.')
         if inp_img.size != (self.size, self.size):
             raise FilterError('The input image size must be %dx%d' % (self.size, self.size))
-        if target_luminance and target_luminance >= 1 or target_luminance <= 0:
-            raise FilterError('The target_luminance must be in (0, 1)')
+        if target_luminance is not None:
+            if target_luminance >= 1 or target_luminance <= 0:
+                raise FilterError('The target_luminance must be in (0, 1)')
         if noise_blend_alpha > 1 or noise_blend_alpha < 0:
             raise FilterError('The noise_blend_alpha must be in [0, 1]')
         if noise_overlay_alpha > 1 or noise_overlay_alpha < 0:
@@ -315,7 +316,7 @@ class AllRGBFilter:
         for i, index in enumerate(self._indexes):
             if i % 1048576 == 0:
                 pct = 100.0 * i / (self.size * self.size)
-                auto_log(('%s: %.1f%% percent complete' % (img_name, pct)))
+                auto_log(('%s progress: %.1f%%' % (out_name, pct)))
             out_arr[index] = kd_tree.pop_nearest_neighbor(*ref_arr[index])
 
         out_img = Image.new('RGB', (self.size, self.size))

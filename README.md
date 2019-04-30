@@ -21,7 +21,7 @@ program to generate images with all 8-bit RGB colors.
 ### The main script `all_rgb.py`
 
 ```bash
-$ cd allrgb
+$ cd all_rgb
 $ python3 all_rgb.py
 ```
 
