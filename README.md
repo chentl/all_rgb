@@ -5,7 +5,7 @@ A filter to generate images with all 8-bit RGB colors. Here are some examples:
 | Photo by [Chris Holder](https://unsplash.com/photos/pyMNFCC1wqM) | Photo by [Lily Banse](https://unsplash.com/photos/dIRZxtl4mzo) | Photo by [Peter Lloyd](https://unsplash.com/photos/LZ0SEx8NpcU) |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | ![chris-holder_compressed](demo/chris-holder_allrgb_compressed.jpg) | ![chris-holder_compressed](demo/lily-banse_allrgb_compressed.jpg) | ![chris-holder_compressed](demo/peter-lloyd_allrgb_compressed.jpg) |
-|     [uncompressed version](demo/chris-holder_allrgb.png)     |      [uncompressed version](demo/lily-banse_allrgb.png)      |     [uncompressed version](demo/peter-lloyd_allrgb.png)      |
+| [uncompressed version](https://github.com/chentl/all_rgb/blob/master/demo/chris-holder_allrgb.png) | [uncompressed version](https://github.com/chentl/all_rgb/blob/master/demo/lily-banse_allrgb.png) | [uncompressed version](https://github.com/chentl/all_rgb/blob/master/demo/peter-lloyd_allrgb.png) |
 
 ## Requirements
 
