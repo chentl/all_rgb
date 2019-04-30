@@ -2,9 +2,10 @@
 
 A filter to generate images with all 8-bit RGB colors. Here is a example:
 
-![chris-holder_compressed](demo/chris-holder_allrgb_compressed.jpg)
-
-(The picture above is a lossy compressed version. Here is the [uncompressed one](demo/chris-holder_allrgb.png).)
+| Photo by [Chris Holder](https://unsplash.com/photos/pyMNFCC1wqM) | Photo by [Lily Banse](https://unsplash.com/photos/dIRZxtl4mzo) |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
+| ![chris-holder_compressed](demo/chris-holder_allrgb_compressed.jpg) | ![chris-holder_compressed](demo/lily-banse_allrgb_compressed.jpg) |
+|     [uncompressed version](demo/chris-holder_allrgb.png)     |      [uncompressed version](demo/lily-banse_allrgb.png)      |
 
 ## Requirements
 
